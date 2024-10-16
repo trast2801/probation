@@ -41,17 +41,15 @@ def create_and_save_plot_fr(data, ticker, period, filename=None):
     ff = graf.Figure()
 
     plt.grid(True)
-    plt.annotate('Пример текста', xy=(dates[1], data['Close'][1]), arrowprops=dict(facecolor='red', shrink=0.006),
-                 xytext=(dates[1]+datetime.timedelta(hours=1), data['Close'][9]))
+    #plt.annotate('Пример текста', xy=(dates[2], data['Close'][2]), arrowprops=dict(facecolor='red', shrink=0.006),
+    #             xytext=(dates[1], data['Close'][9]))
 
 
     plt.draw()
     plt.gcf().canvas.flush_events()
-    sleep(10)
+    sleep(5)
     plt.close("all")
     #plt.show()
-
-
 
     return
 
