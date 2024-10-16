@@ -1,9 +1,16 @@
+import sys
 from time import sleep
 
 import data_download as dd
 import data_plotting as dplt
 import solution as sl
 import freestyle as fr
+import matplotlib.pyplot as plt
+import signal
+
+def handler(signum, frame):
+    print("Вы нажали CTRL+C")
+    sys.exit(1)
 
 
 def first():
@@ -29,23 +36,25 @@ def first():
 
 
 
-    print(f'Среднее за период: {middle}\n'
-          f'Отклонение выше норматива: {otklonenie}')
+    print(f'Среднее за период: {middle:.2f}\n'
+          f'Отклонение выше норматива: {otklonenie:.2f}')
 
 def second():
     ticker = input("Введите тикер акции (например, «AAPL» для Apple Inc):»")
     ticker="AAPL"
-    print("Переходим в режим ежеминутной прорисовки графика, для выхода нажмите (CTRL+C)")
+    print("Переходим в режим ежеминутной прорисовки графика, для выхода закроте окно")
+    plt.ion()
+
     while True:
+        signal.signal(signal.SIGINT, handler)
         stock_data = fr.load_free_data(ticker)
         stock_data = dd.add_moving_average(stock_data)
         fr.create_and_save_plot_fr(stock_data, ticker, period='1mo')
-
-        print("ddd")
+    plt.ioff()
 
 def main():
     while True:
-        key = input("Выберите режим (1 - по ТЗ, 2 - Вольное творчество, 3 - выход) : ")
+        key = input("Выберите режим:\n 1 - по ТЗ\n 2 - Вольное творчество(идея интерактива, не статичные графики) \n 3 - выход : ")
         #key="2"
         if key == "1":
             first()

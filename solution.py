@@ -1,6 +1,9 @@
+
+
 import pandas as pd
 from datetime import date
 import yfinance as yf
+import log_conf
 
 def calculate_and_display_average_price(data):
     '''Функция выводит среднюю цену закрытия акций за заданный период'''
@@ -14,5 +17,7 @@ def notify_if_strong_fluctuations(data, threshold):
     percent = (data['Close'].max() - data['Close'].min()) / data['Close'].mean() * 100
     if percent >= threshold:
         #print(f'цена акций колебалась на {percent}%')
+        mess = f'Изменение цены больше нормы: {percent:.2f}'
+        log_conf.logging.info(mess)
         return percent
     return None
