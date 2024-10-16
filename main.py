@@ -42,9 +42,9 @@ def first():
 def second():
     ticker = input("Введите тикер акции (например, «AAPL» для Apple Inc):»")
     ticker="AAPL"
-    print("Переходим в режим ежеминутной прорисовки графика, для выхода закроте окно")
+    print("Переходим в режим ежеминутной прорисовки графика, для выхода нажмите CTRL+C")
     plt.ion()
-
+    signal.signal(signal.SIGINT, handler)
     while True:
         signal.signal(signal.SIGINT, handler)
         stock_data = fr.load_free_data(ticker)
