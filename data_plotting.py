@@ -10,6 +10,7 @@ def create_and_save_plot(data, ticker, period, filename=None):
             dates = data.index.to_numpy()
             plt.plot(dates, data['Close'].values, label='Close Price')
             plt.plot(dates, data['Moving_Average'].values, label='Moving Average')
+
         else:
             print("Информация о дате отсутствует или не имеет распознаваемого формата.")
             return
@@ -25,7 +26,8 @@ def create_and_save_plot(data, ticker, period, filename=None):
     plt.legend()
 
     if filename is None:
-        filename = f"{ticker}_{period}_stock_price_chart.png"
+        filename = f"OUT\{ticker}_{period}_stock_price_chart.png"
 
     plt.savefig(filename)
     print(f"График сохранен как {filename}")
+    plt.close()

@@ -1,3 +1,4 @@
+import os
 import sys
 from time import sleep
 
@@ -8,9 +9,22 @@ import freestyle as fr
 import matplotlib.pyplot as plt
 import signal
 
+ticker = ""
+period = ""
+
+
 def handler(signum, frame):
     print("Вы нажали CTRL+C")
     sys.exit(1)
+
+
+def check_dir(directory_name):
+    try:
+        if not os.path.exists(directory_name):
+            print(f"Directory '{directory_name}' does not exist.")
+            os.makedirs(directory_name)
+    except Exception as error:
+        print(error)
 
 
 def first():
@@ -22,26 +36,28 @@ def first():
 
     ticker = input("Введите тикер акции (например, «AAPL» для Apple Inc):»")
     period = input("Введите период для данных (например, '1mo' для одного месяца): ")
-
+    # ticker = "AAPL"
+    # period = "1Y"
+    check_dir(".\\OUT")
     # Fetch stock data
     stock_data = dd.fetch_stock_data(ticker, period)
-
     middle = sl.calculate_and_display_average_price(stock_data)
     otklonenie = sl.notify_if_strong_fluctuations(stock_data, 5)
+
     # Add moving average to the data
     stock_data = dd.add_moving_average(stock_data)
-
+    sl.add_technical_indicators(stock_data)
     # Plot the data
     dplt.create_and_save_plot(stock_data, ticker, period)
-
-
-
+    sl.export_data_to_csv(stock_data)
+    sl.create_and_save_plot_with_indicators(stock_data, ticker, period)
     print(f'Среднее за период: {middle:.2f}\n'
           f'Отклонение выше норматива: {otklonenie:.2f}')
 
+
 def second():
     ticker = input("Введите тикер акции (например, «AAPL» для Apple Inc):»")
-    ticker="AAPL"
+    ticker = "AAPL"
     print("Переходим в режим ежеминутной прорисовки графика, для выхода нажмите CTRL+C")
     plt.ion()
     signal.signal(signal.SIGINT, handler)
@@ -52,10 +68,12 @@ def second():
         fr.create_and_save_plot_fr(stock_data, ticker, period='1mo')
     plt.ioff()
 
+
 def main():
     while True:
-        key = input("Выберите режим:\n 1 - по ТЗ\n 2 - Вольное творчество(идея интерактива, не статичные графики) \n 3 - выход : ")
-        #key="2"
+        key = input(
+            "Выберите режим:\n 1 - по ТЗ\n 2 - Вольное творчество(идея интерактива, не статичные графики) \n 3 - выход : ")
+        # key="2"
         if key == "1":
             first()
         if key == "2":
