@@ -41,9 +41,10 @@ def create_and_save_plot_fr(data, ticker, period, filename=None):
     ff = graf.Figure()
 
     plt.grid(True)
-    #plt.annotate('Пример текста', xy=(dates[2], data['Close'][2]), arrowprops=dict(facecolor='red', shrink=0.006),
-    #             xytext=(dates[1], data['Close'][9]))
-
+    # plt.annotate('Пример текста', xy=(dates[2], data['Close'][2]), arrowprops=dict(facecolor='red', shrink=0.006),
+    #              xytext=(dates[1], data['Close'][9]))
+    fig.add_annotation(text=f'Средняя цена: {avg_price:.2f}', x=0.5, y=0.95, showarrow=False,
+                       xanchor='center', yanchor='top')
 
     plt.draw()
     plt.gcf().canvas.flush_events()
