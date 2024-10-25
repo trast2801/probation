@@ -1,13 +1,9 @@
-import datetime
-import os
-from pathlib import Path
-
-import pandas as pd
-from datetime import date
+from datetime import datetime, timedelta, date
 import yfinance as yf
+import pandas as pd
 import matplotlib.pyplot as plt
 import log_conf
-import main
+
 
 
 def calculate_and_display_average_price(data):
@@ -35,7 +31,7 @@ def export_data_to_csv(data, filename=None):
     ''' функция export_data_to_csv(data, filename),
      которая позволяет сохранять загруженные данные об акциях в CSV файл
      '''
-    now = datetime.datetime.now()
+    now = datetime.now()
     formatted_date = now.strftime('%Y-%m-%d время %H-%M-%S')
     if filename is None:
         filename = f"OUT\{formatted_date} data.csv"
@@ -104,3 +100,55 @@ def create_and_save_plot_with_indicators(data, ticker, period, filename=None):
 
     plt.show()
     pass
+
+def entering_an_arbitrary_period():
+    ''' ввод проивольного периода для загрузки дат '''
+    period = {
+        'start_date' : None,
+        'end_date' : None
+    }
+    period_input = input(
+        "Введите период для данных (например, '2024-01-01 2024-12-31' для данных за 2024 год, или '1mo' для одного "
+        "месяца) \n"
+        "(Ещё варианты: 1d, 5d, 1mo, 3moс, 6mo, 1y, 2y, 5y, 10y, с начала года, max: ")
+
+    '''Обработка ввода пользователя'''
+    if '-' in period_input:
+        start_date, end_date = period_input.split()
+        period['start_date'] = datetime.strptime(start_date, "%Y-%m-%d")
+        period['end_date'] = datetime.strptime(end_date, "%Y-%m-%d")
+    else:
+        period_map = {
+            '1d': pd.Timedelta(days=1),
+            '5d': pd.Timedelta(days=5),
+            '1mo': pd.Timedelta(weeks=4),
+            '3mo': pd.Timedelta(weeks=12),
+            '6mo': pd.Timedelta(weeks=24),
+            '1y': pd.Timedelta(weeks=52),
+            '2y': pd.Timedelta(weeks=104),
+            '5y': pd.Timedelta(weeks=260),
+            '10y': pd.Timedelta(weeks=520),
+            'max': None
+        }
+
+        if period_input == 'max':
+            period['start_date'] = datetime.strptime('1970/01/01', '%Y/%m/%d')
+            period['end_date'] = datetime.now()
+        elif period_input == '1d':
+            period = None
+        elif period_input in period_map:
+            period['start_date'] = datetime.now() - period_map[period_input]
+            period['end_date'] = datetime.now()
+        elif period_input == 'с начала года':
+            period['start_date'] = datetime.now().replace(month=1, day=1)
+            period['end_date'] = datetime.now()
+
+
+    return period
+
+def fetch_stock_data_new(ticker, start_date, end_date):
+    '''Функция получает исторические данные об акциях для указанного тикера и временного периода. Возвращает DataFrame
+     с данными.'''
+    stock = yf.Ticker(ticker)
+    data = stock.history(start=start_date, end=end_date)
+    return data
