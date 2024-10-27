@@ -60,9 +60,10 @@ def add_technical_indicators(data):
     return data
 
 
-def create_and_save_plot_with_indicators(data, ticker, period, filename=None):
+def create_and_save_plot_with_indicators(data, ticker, period, style, filename=None):
     ''' Функция выводит график цен в одном  и во втором технический индикатор привязанный
     к шкале времени'''
+    plt.style.use(style)
     fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 6))
     plt.subplots_adjust(wspace=0.5, hspace=0.5)
     if 'Date' not in data:
@@ -98,7 +99,13 @@ def create_and_save_plot_with_indicators(data, ticker, period, filename=None):
     axs[1].set_title("Индикатор RSI", fontsize=10)
     axs[1].grid(True)
 
+    if filename is None:
+        filename = f"OUT\{ticker}_New_{period}_stock_price_chart.png"
+
+    plt.savefig(filename)
+    print(f"График сохранен как {filename}")
     plt.show()
+    plt.close()
     pass
 
 def entering_an_arbitrary_period():

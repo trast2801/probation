@@ -2,9 +2,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-def create_and_save_plot(data, ticker, period, filename=None):
+def create_and_save_plot(data, ticker, period, style, filename=None):
     plt.figure(figsize=(10, 6))
-
+    plt.style.use(style)
     if 'Date' not in data:
         if pd.api.types.is_datetime64_any_dtype(data.index):
             dates = data.index.to_numpy()
@@ -24,6 +24,7 @@ def create_and_save_plot(data, ticker, period, filename=None):
     plt.xlabel("Дата")
     plt.ylabel("Цена")
     plt.legend()
+
 
     if filename is None:
 

@@ -53,10 +53,10 @@ def first():
     sl.add_technical_indicators(stock_data)
     # Plot the data
     period = period.get('start_date').strftime("%d-%m-%Y") + " " + period.get('end_date').strftime("%d-%m-%Y")
-    dplt.create_and_save_plot(stock_data, ticker, period)
+    dplt.create_and_save_plot(stock_data, ticker, period,style='grayscale')
     sl.export_data_to_csv(stock_data)
 
-    sl.create_and_save_plot_with_indicators(stock_data, ticker, period)
+    sl.create_and_save_plot_with_indicators(stock_data, ticker, period, style='bmh')
     print(f'Среднее за период: {middle:.2f}\n'
           f'Отклонение выше норматива: {otklonenie:.2f}')
 
