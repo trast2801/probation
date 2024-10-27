@@ -149,6 +149,9 @@ def entering_an_arbitrary_period():
         elif period_input == 'с начала года':
             period['start_date'] = datetime.now().replace(month=1, day=1)
             period['end_date'] = datetime.now()
+        else:
+
+            period = None
 
 
     return period
@@ -159,3 +162,20 @@ def fetch_stock_data_new(ticker, start_date, end_date):
     stock = yf.Ticker(ticker)
     data = stock.history(start=start_date, end=end_date)
     return data
+
+def choise_style():
+    '''Функция проверяет выбранный стиль и возвращет значение или стиль по умолчанию'''
+    spisok = ['Solarize_Light2', '_classic_test_patch', '_mpl-gallery', '_mpl-gallery-nogrid', 'bmh',
+     'classic', 'dark_background', 'fast', 'fivethirtyeight', 'ggplot',
+     'grayscale', 'seaborn', 'seaborn-bright', 'seaborn-colorblind',
+     'seaborn-dark', 'seaborn-dark-palette', 'seaborn-darkgrid', 'seaborn-deep',
+     'seaborn-muted', 'seaborn-notebook', 'seaborn-paper', 'seaborn-pastel',
+     'seaborn-poster', 'seaborn-talk', 'seaborn-ticks', 'seaborn-white', 'seaborn-whitegrid',
+     'tableau-colorblind10']
+    style = input ('Введите название стиля, например (classic, dark_background, fast), по умолчанию classic:')
+    if style in spisok:
+        return style
+    else:
+        style = 'classic'
+        return style
+    pass
