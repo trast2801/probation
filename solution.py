@@ -64,18 +64,25 @@ def create_and_save_plot_with_indicators(data, ticker, period, style, filename=N
     ''' Функция выводит график цен в одном  и во втором технический индикатор привязанный
     к шкале времени'''
     plt.style.use(style)
-    fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 6))
+    fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(15, 10))
     plt.subplots_adjust(wspace=0.5, hspace=0.5)
+    #plt.figtext(0.1, 0.8, 'Текст в области\n окна')
     if 'Date' not in data:
         if pd.api.types.is_datetime64_any_dtype(data.index):
             dates = data.index.to_numpy()
             # график цен
             axs[0].plot(dates, data['Close'].values, label='Prices')
             axs[0].plot(dates, data['Moving_Average'], label='Moving Average')
+            axs[0].plot(dates, data['STD'], label = 'STD')
+
             # график RSI
             axs[1].plot(dates, data['RSI'], label='RSI')
             axs[1].axhline(y=70, color='r', linestyle='--')
             axs[1].axhline(y=30, color='g', linestyle='--')
+            # график стандартное отклонение
+
+
+
         else:
             print("Информация о дате отсутствует или не имеет распознаваемого формата.")
             return
@@ -85,16 +92,25 @@ def create_and_save_plot_with_indicators(data, ticker, period, style, filename=N
             # график цен
             axs[0].plot(data['Date'], data['Close'].values, label='Prices')
             axs[0].plot(data['Date'], data['Moving_Average'], label='Moving Average')
+            axs[0].plot(data['Date'], data['STD'], label='STD')
+
 
             # график RSI
             axs[1].plot(data['Date'], data['RSI'], label='RSI')
             axs[1].axhline(y=70, color='r', linestyle='-')
             axs[1].axhline(y=30, color='g', linestyle='-')
+            # график STD
+
+
+
 
     axs[0].set_title(f"{ticker} Цена акций с течением времени", fontsize=10)
     axs[0].set_xlabel('Дата')
     axs[0].set_ylabel('Цена')
     axs[0].grid(True)
+    axs[0].legend()
+
+
 
     axs[1].set_title("Индикатор RSI", fontsize=10)
     axs[1].grid(True)
@@ -179,3 +195,10 @@ def choise_style():
         style = 'classic'
         return style
     pass
+
+
+def calculate_std(data, window_size=20):
+    '''Функция добавляет статистический индикатор - стандартное отклонение цены закрытия.'''
+
+    data['STD'] = data['Close'].rolling(window=window_size).std()
+    return data

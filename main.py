@@ -41,8 +41,9 @@ def first():
     #новая функция для вода произвольного периода апроса данных
     period = sl.entering_an_arbitrary_period()
     if period == None:
-        print("Внутридневные данные не доступны")
+        print("Внутридневные данные не доступны или период задан неверно")
         return
+    style = sl.choise_style()
     stock_data = sl.fetch_stock_data_new(ticker,period.get('start_date'), period.get('end_date'))
     middle = sl.calculate_and_display_average_price(stock_data)
     otklonenie = sl.notify_if_strong_fluctuations(stock_data, 5)
@@ -51,12 +52,14 @@ def first():
     # Add moving average to the data
     stock_data = dd.add_moving_average(stock_data)
     sl.add_technical_indicators(stock_data)
+
     # Plot the data
     period = period.get('start_date').strftime("%d-%m-%Y") + " " + period.get('end_date').strftime("%d-%m-%Y")
-    dplt.create_and_save_plot(stock_data, ticker, period,style='grayscale')
+    sl.calculate_std(stock_data)
+    dplt.create_and_save_plot(stock_data, ticker, period,style)
     sl.export_data_to_csv(stock_data)
 
-    sl.create_and_save_plot_with_indicators(stock_data, ticker, period, style='bmh')
+    sl.create_and_save_plot_with_indicators(stock_data, ticker, period, style)
     print(f'Среднее за период: {middle:.2f}\n'
           f'Отклонение выше норматива: {otklonenie:.2f}')
 
