@@ -32,19 +32,19 @@ def first():
     print(
         "Вот несколько примеров биржевых тикеров, которые вы можете рассмотреть: AAPL (Apple Inc), GOOGL (Alphabet Inc), MSFT (Microsoft Corporation), AMZN (Amazon.com Inc), TSLA (Tesla Inc).")
     ticker = input("Введите тикер акции (например, «AAPL» для Apple Inc):»")
-    #period = input("Введите период для данных (например, '1mo' для одного месяца): ")
-    #ticker = "AAPL"
-    #period = "1Y"
+    # period = input("Введите период для данных (например, '1mo' для одного месяца): ")
+    # ticker = "AAPL"
+    # period = "1Y"
     check_dir(".\\OUT")
     # Fetch stock data
-    #stock_data = dd.fetch_stock_data(ticker, period)
-    #новая функция для вода произвольного периода апроса данных
+    # stock_data = dd.fetch_stock_data(ticker, period)
+    # новая функция для вода произвольного периода апроса данных
     period = sl.entering_an_arbitrary_period()
     if period == None:
         print("Внутридневные данные не доступны или период задан неверно")
         return
     style = sl.choise_style()
-    stock_data = sl.fetch_stock_data_new(ticker,period.get('start_date'), period.get('end_date'))
+    stock_data = sl.fetch_stock_data_new(ticker, period.get('start_date'), period.get('end_date'))
     middle = sl.calculate_and_display_average_price(stock_data)
     otklonenie = sl.notify_if_strong_fluctuations(stock_data, 5)
     if otklonenie == None:
@@ -56,10 +56,11 @@ def first():
     # Plot the data
     period = period.get('start_date').strftime("%d-%m-%Y") + " " + period.get('end_date').strftime("%d-%m-%Y")
     sl.calculate_std(stock_data)
-    dplt.create_and_save_plot(stock_data, ticker, period,style)
-    sl.export_data_to_csv(stock_data)
-
-    sl.create_and_save_plot_with_indicators(stock_data, ticker, period, style)
+    dplt.create_and_save_plot(stock_data, ticker, period, style)
+    filename = sl.export_data_to_csv(stock_data)
+    #sl.create_interactive_plot(stock_data)
+    #sl.create_and_save_plot_with_indicators(stock_data, ticker, period, style)
+    sl.create_interactive_plot_bokeh(filename)
     print(f'Среднее за период: {middle:.2f}\n'
           f'Отклонение выше норматива: {otklonenie:.2f}')
 

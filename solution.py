@@ -1,9 +1,12 @@
 from datetime import datetime, timedelta, date
+import plotly
 import yfinance as yf
-import pandas as pd
 import matplotlib.pyplot as plt
 import log_conf
-
+from plotly import graph_objs as gh
+import pandas as pd
+from bokeh.plotting import figure, output_file, show
+from bokeh.models import ColumnDataSource
 
 
 def calculate_and_display_average_price(data):
@@ -46,6 +49,7 @@ def export_data_to_csv(data, filename=None):
         print(f'Ошибка {message}')
         log_conf.logging.info(message)
 
+    return filename
 
 def add_technical_indicators(data):
     '''Функция добавляет дополнительный технический индикатор RSI'''
@@ -66,14 +70,14 @@ def create_and_save_plot_with_indicators(data, ticker, period, style, filename=N
     plt.style.use(style)
     fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(15, 10))
     plt.subplots_adjust(wspace=0.5, hspace=0.5)
-    #plt.figtext(0.1, 0.8, 'Текст в области\n окна')
+    # plt.figtext(0.1, 0.8, 'Текст в области\n окна')
     if 'Date' not in data:
         if pd.api.types.is_datetime64_any_dtype(data.index):
             dates = data.index.to_numpy()
             # график цен
             axs[0].plot(dates, data['Close'].values, label='Prices')
             axs[0].plot(dates, data['Moving_Average'], label='Moving Average')
-            axs[0].plot(dates, data['STD'], label = 'STD')
+            axs[0].plot(dates, data['STD'], label='STD')
 
             # график RSI
             axs[1].plot(dates, data['RSI'], label='RSI')
@@ -94,23 +98,17 @@ def create_and_save_plot_with_indicators(data, ticker, period, style, filename=N
             axs[0].plot(data['Date'], data['Moving_Average'], label='Moving Average')
             axs[0].plot(data['Date'], data['STD'], label='STD')
 
-
             # график RSI
             axs[1].plot(data['Date'], data['RSI'], label='RSI')
             axs[1].axhline(y=70, color='r', linestyle='-')
             axs[1].axhline(y=30, color='g', linestyle='-')
             # график STD
 
-
-
-
     axs[0].set_title(f"{ticker} Цена акций с течением времени", fontsize=10)
     axs[0].set_xlabel('Дата')
     axs[0].set_ylabel('Цена')
     axs[0].grid(True)
     axs[0].legend()
-
-
 
     axs[1].set_title("Индикатор RSI", fontsize=10)
     axs[1].grid(True)
@@ -124,11 +122,12 @@ def create_and_save_plot_with_indicators(data, ticker, period, style, filename=N
     plt.close()
     pass
 
+
 def entering_an_arbitrary_period():
     ''' ввод проивольного периода для загрузки дат '''
     period = {
-        'start_date' : None,
-        'end_date' : None
+        'start_date': None,
+        'end_date': None
     }
     period_input = input(
         "Введите период для данных (например, '2024-01-01 2024-12-31' для данных за 2024 год, или '1mo' для одного "
@@ -169,8 +168,8 @@ def entering_an_arbitrary_period():
 
             period = None
 
-
     return period
+
 
 def fetch_stock_data_new(ticker, start_date, end_date):
     '''Функция получает исторические данные об акциях для указанного тикера и временного периода. Возвращает DataFrame
@@ -179,16 +178,17 @@ def fetch_stock_data_new(ticker, start_date, end_date):
     data = stock.history(start=start_date, end=end_date)
     return data
 
+
 def choise_style():
     '''Функция проверяет выбранный стиль и возвращет значение или стиль по умолчанию'''
     spisok = ['Solarize_Light2', '_classic_test_patch', '_mpl-gallery', '_mpl-gallery-nogrid', 'bmh',
-     'classic', 'dark_background', 'fast', 'fivethirtyeight', 'ggplot',
-     'grayscale', 'seaborn', 'seaborn-bright', 'seaborn-colorblind',
-     'seaborn-dark', 'seaborn-dark-palette', 'seaborn-darkgrid', 'seaborn-deep',
-     'seaborn-muted', 'seaborn-notebook', 'seaborn-paper', 'seaborn-pastel',
-     'seaborn-poster', 'seaborn-talk', 'seaborn-ticks', 'seaborn-white', 'seaborn-whitegrid',
-     'tableau-colorblind10']
-    style = input ('Введите название стиля, например (classic, dark_background, fast), по умолчанию classic:')
+              'classic', 'dark_background', 'fast', 'fivethirtyeight', 'ggplot',
+              'grayscale', 'seaborn', 'seaborn-bright', 'seaborn-colorblind',
+              'seaborn-dark', 'seaborn-dark-palette', 'seaborn-darkgrid', 'seaborn-deep',
+              'seaborn-muted', 'seaborn-notebook', 'seaborn-paper', 'seaborn-pastel',
+              'seaborn-poster', 'seaborn-talk', 'seaborn-ticks', 'seaborn-white', 'seaborn-whitegrid',
+              'tableau-colorblind10']
+    style = input('Введите название стиля, например (classic, dark_background, fast), по умолчанию classic:')
     if style in spisok:
         return style
     else:
@@ -202,3 +202,75 @@ def calculate_std(data, window_size=20):
 
     data['STD'] = data['Close'].rolling(window=window_size).std()
     return data
+
+def create_interactive_plot(data):
+    '''Функция создаёт интерактивный график'''
+    # Вычисляем среднее значение колонки 'Close'
+    avg_price = data['Close'].mean()
+
+
+    fig = gh.Figure()
+
+    # Добавляем линейный график для цены закрытия
+    fig.add_trace(gh.Scatter(x=data.index, y=data['Close'], mode='lines', name='Цена закрытия'))
+
+    # Добавляем линейный график для скользящего среднего
+    fig.add_trace(gh.Scatter(x=data.index, y=data['Moving_Average'], mode='lines', name='Скользящее среднее'))
+
+    # Добавляем текст с информацией о средней цене
+    fig.add_annotation(text=f'Средняя цена: {avg_price:.2f}', x=0.5, y=0.95, showarrow=False,
+                       xanchor='center', yanchor='top')
+
+    # Настройка осей и заголовок
+    fig.update_layout(title='Цена акций и Скользящее Среднее',
+                      xaxis_title='Дата',
+                      yaxis_title='Цена',
+                      hovermode='x unified',
+                      width=1200,
+                      height=800
+                      )
+
+    # Ограничение диапазона оси X
+    max_date = max(data.index)
+    min_date = min(data.index)
+    fig.update_xaxes(range=[min_date, max_date])
+
+    # Отображаем интерактивный график
+
+    plotly.offline.plot(fig, filename='file.html')
+    #fig.show()
+
+def create_interactive_plot_bokeh(filename):
+
+    df = pd.read_csv(filename,
+                     parse_dates=['Date'], index_col='Date')
+
+    source = ColumnDataSource(df)
+
+    output_file('bokeh_stock_chart.html')
+
+    p = figure(
+        width=800, height=600,
+        title='Интерактивный график на основе библиотеки Bokeh',
+        x_axis_type='datetime'
+    )
+
+    p.line(
+        x='Date', y='Close',
+        source=source,
+        legend_label='Price',
+        line_width=4
+    )
+
+    p.line(
+        x='Date', y='Moving_Average',
+        source=source,
+        legend_label='Moving_Average',
+        line_width=2,
+        line_color='red',
+        line_dash='dashed',
+    )
+    p.add_layout(p.legend[0], 'left')
+
+    show(p)
+
